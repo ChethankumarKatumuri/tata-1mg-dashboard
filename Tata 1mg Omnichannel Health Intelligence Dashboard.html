@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tata 1mg — Omnichannel Health Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6f8;--card:#fff;--tx:#1b2430;--mu:#64707d;--bd:#e1e6eb;--pr:#e8503a;--ac:#0f8b8d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mu:#93a0ad;--bd:#27323e}}
+:root[data-theme="dark"]{--bg:#10161d;--card:#18212b;--tx:#e8edf2;--mu:#93a0ad;--bd:#27323e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.4 -apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{padding:14px 18px 6px}h1{margin:0;font-size:19px}header p{margin:2px 0 0;color:var(--mu);font-size:12px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 18px}
+nav button{white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 12px;border-radius:18px;cursor:pointer;font-size:12.5px}
+nav button.on{background:var(--pr);border-color:var(--pr);color:#fff}
+.sl{display:flex;flex-wrap:wrap;gap:10px;padding:6px 18px 10px;align-items:end}
+.sl label{font-size:11px;color:var(--mu);display:flex;flex-direction:column;gap:2px}
+select{padding:6px 8px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.sl button{padding:7px 12px;border-radius:6px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+main{padding:0 18px 24px}
+h2{font-size:15px;margin:6px 0 10px}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kc{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--ac);border-radius:8px;padding:10px 12px}
+.kc small{color:var(--mu);font-size:11px}.kc b{display:block;font-size:20px;margin-top:2px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:12px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;min-width:0}
+.c h3{margin:0 0 6px;font-size:12.5px;color:var(--mu);font-weight:600}
+.cv{position:relative;height:240px}
+.tw{overflow-x:auto;max-height:320px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{color:var(--mu);position:sticky;top:0;background:var(--card)}
+.note{background:var(--card);border:1px dashed var(--pr);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px}
+.bm{color:var(--pr);font-weight:600}
+.foot{color:var(--mu);font-size:11px;padding:0 18px 20px}
+</style></head><body>
+<header><h1>Tata 1mg — Omnichannel Health Intelligence</h1><p>Interactive dashboard · click bars/slices' legends, hover for tooltips, use slicers to filter every page</p></header>
+<nav id="nav"></nav>
+<div class="sl">
+<label>Year<select id="fy"></select></label><label>Month<select id="fm"></select></label>
+<label>State<select id="fs"></select></label><label>City<select id="fc"></select></label>
+<button onclick="reset()">Reset</button></div>
+<main id="main"></main>
+<div class="foot">Illustrative synthetic data (seeded) shaped like the case model — swap in your Excel/Power BI data for real figures. PMI 96% and 18% second-opinion baseline are case benchmarks, not calculated.</div>
+<script>
+let s=42;const R=()=>(s=s*16807%2147483647)/2147483647,pick=a=>a[Math.floor(R()*a.length)];
+const P=[["302001","Jaipur","Rajasthan",26.91,75.79,3],["302017","Jaipur","Rajasthan",26.85,75.72,2],["110001","New Delhi","Delhi",28.63,77.21,5],["110075","New Delhi","Delhi",28.59,77.03,4],["400001","Mumbai","Maharashtra",18.94,72.83,5],["400053","Mumbai","Maharashtra",19.13,72.83,4],["560001","Bengaluru","Karnataka",12.97,77.59,5],["560034","Bengaluru","Karnataka",12.93,77.63,3],["600001","Chennai","Tamil Nadu",13.08,80.27,3],["226001","Lucknow","Uttar Pradesh",26.85,80.95,2]];
+const wp=[];P.forEach((p,i)=>{for(let j=0;j<p[5];j++)wp.push(i)});
+const SEG=["New","Regular","Chronic","Premium"],SPEC=["Cardiology","Diabetology","General Medicine","Dermatology","Pediatrics"],
+LAB=["Lab North","Lab West","Lab South","Lab Central"],TEST=["CBC","HbA1c","Lipid Profile","Thyroid","Vitamin D","LFT"];
+const pts=[...Array(320)].map((_,i)=>({id:i,p:pick(wp),seg:pick(["New","New","Regular","Regular","Regular","Chronic","Chronic","Premium"]),abha:R()<.58}));
+const mm=()=>{const y=R()<.45?2025:2026;return[y,1+Math.floor(R()*(y==2026?9:12))]};
+const O=[...Array(900)].map(()=>{const t=pick(pts),[y,m]=mm(),r=R(),st=r<.88?"Delivered":r<.97?"Delayed":"Cancelled";
+return{pt:t.id,p:t.p,seg:t.seg,y,m,st,tat:st=="Delayed"?30+R()*30:2+R()*28+(t.p%4==3?4:0),rev:Math.round(150+R()*900*(t.seg=="Premium"?2.2:t.seg=="Chronic"?1.6:1)),rx:R()<.45,store:"DS "+P[t.p][1]+(t.p%2?" B":" A")}});
+const C=[...Array(260)].map(()=>{const t=pick(pts),[y,m]=mm(),sp=pick(SPEC);return{pt:t.id,p:t.p,y,m,sp,doc:"Dr. "+sp.split(" ")[0]+" "+pick(["A","B"]),dur:8+R()*22,rt:3.4+R()*1.6,dx:R()<.16,sv:R()<.72}});
+const D=[...Array(320)].map(()=>{const t=pick(pts),[y,m]=mm();return{pt:t.id,p:t.p,y,m,lab:pick(LAB),test:pick(TEST),tat:4+R()*44,ab:R()<.22}});
+const $=id=>document.getElementById(id),MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+$("fy").innerHTML='<option value="0">All</option><option>2025</option><option>2026</option>';
+$("fm").innerHTML='<option value="0">All</option>'+MN.map((m,i)=>`<option value="${i+1}">${m}</option>`).join("");
+$("fs").innerHTML='<option value="">All</option>'+[...new Set(P.map(p=>p[2]))].map(x=>`<option>${x}</option>`).join("");
+$("fc").innerHTML='<option value="">All</option>'+[...new Set(P.map(p=>p[1]))].map(x=>`<option>${x}</option>`).join("");
+function reset(){["fy","fm"].forEach(i=>$(i).value=0);["fs","fc"].forEach(i=>$(i).value="");draw()}
+["fy","fm","fs","fc"].forEach(i=>$(i).onchange=draw);
+const flt=a=>{const y=+$("fy").value,m=+$("fm").value,st=$("fs").value,c=$("fc").value;return a.filter(o=>(!y||o.y==y)&&(!m||o.m==m)&&(!st||P[o.p][2]==st)&&(!c||P[o.p][1]==c))};
+const sum=a=>a.reduce((x,y)=>x+y,0),avg=a=>a.length?sum(a)/a.length:0,pc=(n,d)=>d?(100*n/d).toFixed(1)+"%":"–",
+inr=n=>"₹"+Math.round(n).toLocaleString("en-IN"),num=n=>Math.round(n).toLocaleString("en-IN");
+function grp(a,kf){const m={};a.forEach(o=>{const k=kf(o);(m[k]=m[k]||[]).push(o)});return Object.entries(m)}
+const PAL=["#e8503a","#0f8b8d","#f2a541","#5b6abf","#8ac26b","#c0587e"];
+const NAV=["01 Executive Overview","02 Pincode Demand","03 Dark Store Fulfilment","04 Unified Patient UPDP","05 Clinical DSS","06 Diagnostics LIMS","07 Executive Control Tower"];
+let pg=0,charts=[];
+$("nav").innerHTML=NAV.map((n,i)=>`<button onclick="pg=${i};draw()">${n}</button>`).join("");
+const K=(l,v)=>`<div class="kc"><small>${l}</small><b>${v}</b></div>`;
+const T=(t,h,r)=>`<div class="c"><h3>${t}</h3><div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${r.map(x=>`<tr>${x.map(v=>`<td>${v}</td>`).join("")}</tr>`).join("")}</table></div></div>`;
+let cq=[];
+const CH=(t,type,lab,dat,o={})=>{cq.push({type,lab,dat,o});return`<div class="c"><h3>${t}</h3><div class="cv"><canvas id="cv${cq.length-1}"></canvas></div></div>`};
+function stats(){
+const o=flt(O),c=flt(C),d=flt(D),del=o.filter(x=>x.st=="Delivered"),pt=new Set(o.map(x=>x.pt));
+const byPt=grp(o,x=>x.pt),ltv=avg(byPt.map(([,v])=>sum(v.map(x=>x.rev))));
+const ab=[...pt].filter(i=>pts[i].abha).length;
+return{o,c,d,pt,ltv,ab,rev:sum(o.map(x=>x.rev)),tat:avg(o.filter(x=>x.st!="Cancelled").map(x=>x.tat)),rx:o.filter(x=>x.rx).length,
+dx:c.filter(x=>x.dx).length,dtat:avg(d.map(x=>x.tat)),abn:d.filter(x=>x.ab).length,del:del.length,dly:o.filter(x=>x.st=="Delayed").length}}
+function ctab(a,kf,ff){return grp(a,kf).map(([k,v])=>[k,...ff(v)])}
+function page(i,S){
+const{o,c,d}=S;let h="";
+const byState=grp(o,x=>P[x.p][2]).sort((a,b)=>b[1].length-a[1].length);
+const byPin=grp(o,x=>x.p).map(([k,v])=>[k,v.length,sum(v.map(x=>x.rev)),new Set(v.map(x=>x.pt)).size]).sort((a,b)=>b[1]-a[1]);
+const stores=grp(o,x=>x.store).map(([k,v])=>({k,n:v.length,rev:sum(v.map(x=>x.rev)),tat:avg(v.filter(x=>x.st!="Cancelled").map(x=>x.tat)),del:v.filter(x=>x.st=="Delivered").length,dl:v.filter(x=>x.st=="Delayed").length})).sort((a,b)=>b.n-a.n);
+const stat=grp(o,x=>x.st),segs=grp(o,x=>x.seg).map(([k,v])=>({k,n:v.length,rev:sum(v.map(x=>x.rev)),p:new Set(v.map(x=>x.pt)).size}));
+const spec=grp(c,x=>x.sp),labs=grp(d,x=>x.lab),tests=grp(d,x=>x.test);
+const pcT=byPin.slice(0,10);
+if(i==0){h=`<h2>Executive Overview</h2><div class="k">${K("💰 Total Revenue",inr(S.rev))}${K("📦 Total Orders",num(o.length))}${K("🚚 Avg Delivery TAT",S.tat.toFixed(1)+" h")}${K("💊 Rx Order %",pc(S.rx,o.length))}${K("🆔 ABHA Link Rate",pc(S.ab,S.pt.size))}${K("👤 Avg Customer LTV",inr(S.ltv))}</div><div class="g">`+
+CH("Revenue by State","bar",byState.map(x=>x[0]),byState.map(x=>sum(x[1].map(y=>y.rev))))+CH("Orders by State","bar",byState.map(x=>x[0]),byState.map(x=>x[1].length),{h:1})+
+CH("Order Status","doughnut",stat.map(x=>x[0]),stat.map(x=>x[1].length))+CH("Customer Segment vs Revenue","bar",segs.map(x=>x.k),segs.map(x=>x.rev),{h:1})+`</div>`}
+if(i==1){h=`<h2>Geospatial Demand &amp; Customer Order Intelligence</h2><div class="k">${K("Total Orders",num(o.length))}${K("Unique Patients",num(S.pt.size))}${K("Revenue",inr(S.rev))}${K("Avg Order Value",inr(S.rev/(o.length||1)))}</div><div class="g">`+
+CH("Pincode Demand Map (bubble = orders, hover for details)","bubble",byPin.map(x=>P[x[0]][0]+" "+P[x[0]][1]),byPin.map(x=>({x:P[x[0]][4],y:P[x[0]][3],r:4+x[1]/6,rev:x[2],pt:x[3],n:x[1]})),{map:1})+
+CH("Top 10 Pincodes by Orders","bar",pcT.map(x=>P[x[0]][0]),pcT.map(x=>x[1]),{h:1})+
+CH("Top 10 Pincodes by Revenue","bar",[...byPin].sort((a,b)=>b[2]-a[2]).slice(0,10).map(x=>P[x[0]][0]),[...byPin].sort((a,b)=>b[2]-a[2]).slice(0,10).map(x=>x[2]),{h:1})+
+T("Pincode detail",["Pincode","City","State","Orders","Revenue","Avg Order Value"],byPin.map(x=>[P[x[0]][0],P[x[0]][1],P[x[0]][2],x[1],inr(x[2]),inr(x[2]/x[1])]))+`</div><div class="note"><b>Business question:</b> where is demand concentrated and where should fulfilment capacity be prioritised? ${pcT[0]?`Highest-volume pincode: <b>${P[pcT[0][0]][0]} (${P[pcT[0][0]][1]})</b>.`:""}</div>`}
+if(i==2){const am=avg(stores.map(x=>x.tat)),an=avg(stores.map(x=>x.n)),fl=stores.filter(x=>x.tat>am&&x.n>an);
+h=`<h2>Dark Store &amp; Last-Mile Fulfilment</h2><div class="k">${K("Total Orders",num(o.length))}${K("Delivered Orders",num(S.del))}${K("Delayed Orders",num(S.dly))}${K("Delivery Success %",pc(S.del,o.length))}${K("Avg Delivery TAT",S.tat.toFixed(1)+" h")}</div><div class="g">`+
+CH("Orders by Dark Store","bar",stores.map(x=>x.k),stores.map(x=>x.n),{h:1})+CH("Avg Delivery TAT by Dark Store (h)","bar",stores.map(x=>x.k),stores.map(x=>+x.tat.toFixed(1)),{h:1})+CH("Order Status","doughnut",stat.map(x=>x[0]),stat.map(x=>x[1].length))+
+T("Dark store matrix",["Dark Store","Orders","Revenue","Avg TAT","Delivered %","Delayed %"],stores.map(x=>[x.k,x.n,inr(x.rev),x.tat.toFixed(1)+" h",pc(x.del,x.n),pc(x.dl,x.n)]))+`</div><div class="note"><b>Operational focus:</b> ${fl.length?"High volume + above-average TAT → "+fl.map(x=>`<b>${x.k}</b>`).join(", ")+" — candidates for micro-fulfilment capacity.":"No store is both high-volume and slow under the current filters."}</div>`}
+if(i==3){h=`<h2>Unified Patient &amp; Customer Intelligence — UPDP</h2><div class="k">${K("Unique Patients",num(S.pt.size))}${K("ABHA Linked",num(S.ab))}${K("ABHA Link Rate",pc(S.ab,S.pt.size))}${K("Avg LTV",inr(S.ltv))}${K("Orders / Patient",(o.length/(S.pt.size||1)).toFixed(2))}<div class="kc" style="border-left-color:var(--pr)"><small>PMI Matching Accuracy</small><b>96%</b><small class="bm">Case Benchmark</small></div></div><div class="g">`;
+const st=grp([...S.pt].map(i=>({p:pts[i].p,a:pts[i].abha?"Linked":"Not Linked"})),x=>P[x.p][2]).map(([k,v])=>[k,100*v.filter(x=>x.a=="Linked").length/v.length]);
+h+=CH("ABHA Linked vs Not Linked","doughnut",["Linked","Not Linked"],[S.ab,S.pt.size-S.ab])+CH("Segment vs Average LTV (₹)","bar",segs.map(x=>x.k),segs.map(x=>Math.round(x.rev/(x.p||1))),{h:1})+CH("Segment vs Revenue","bar",segs.map(x=>x.k),segs.map(x=>x.rev))+CH("ABHA Link Rate by State (%)","bar",st.map(x=>x[0]),st.map(x=>+x[1].toFixed(1)),{h:1})+
+T("Patient analytics",["Segment","Patients","Orders","Revenue","Avg LTV"],segs.map(x=>[x.k,x.p,x.n,inr(x.rev),inr(x.rev/(x.p||1))]))+`</div>`}
+if(i==4){const docs=grp(c,x=>x.doc+"|"+x.sp);
+h=`<h2>Clinical Decision Support &amp; E-Consultation</h2><div class="k">${K("Consultations",num(c.length))}${K("Avg Duration",avg(c.map(x=>x.dur)).toFixed(1)+" min")}${K("Doctor Rating",avg(c.map(x=>x.rt)).toFixed(2)+" / 5")}${K("Diagnosis Change %",pc(S.dx,c.length))}${K("Summary Viewed %",pc(c.filter(x=>x.sv).length,c.length))}<div class="kc" style="border-left-color:var(--pr)"><small>Second-opinion discrepancy</small><b>18%</b><small class="bm">Case Baseline</small></div></div><div class="g">`+
+CH("Consultations by Specialty","bar",spec.map(x=>x[0]),spec.map(x=>x[1].length),{h:1})+CH("Diagnosis Change % by Specialty","bar",spec.map(x=>x[0]),spec.map(x=>+(100*x[1].filter(y=>y.dx).length/x[1].length).toFixed(1)),{h:1})+
+CH("Pre-Consult Summary Usage","doughnut",["Viewed","Not viewed"],[c.filter(x=>x.sv).length,c.filter(x=>!x.sv).length])+CH("Avg Rating by Specialty","bar",spec.map(x=>x[0]),spec.map(x=>+avg(x[1].map(y=>y.rt)).toFixed(2)),{h:1})+
+T("Doctor performance",["Doctor","Specialty","Consults","Avg Rating","Avg Duration","Dx Changes"],docs.map(([k,v])=>{const[dn,sp]=k.split("|");return[dn,sp,v.length,avg(v.map(x=>x.rt)).toFixed(2),avg(v.map(x=>x.dur)).toFixed(1)+" min",v.filter(x=>x.dx).length]}))+`</div>`}
+if(i==5){h=`<h2>Diagnostics / LIMS Performance</h2><div class="k">${K("Diagnostic Bookings",num(d.length))}${K("Avg Report TAT",S.dtat.toFixed(1)+" h")}${K("Abnormal Result %",pc(S.abn,d.length))}${K("Labs",labs.length)}${K("Tests",tests.length)}</div><div class="g">`+
+CH("Bookings by Test","bar",tests.map(x=>x[0]),tests.map(x=>x[1].length),{h:1})+CH("Avg Report TAT by Lab (h)","bar",labs.map(x=>x[0]),labs.map(x=>+avg(x[1].map(y=>y.tat)).toFixed(1)),{h:1})+
+CH("Normal vs Abnormal","doughnut",["Normal","Abnormal"],[d.length-S.abn,S.abn])+CH("Lab Performance — Bookings","bar",labs.map(x=>x[0]),labs.map(x=>x[1].length))+
+T("Lab",["Lab","Tests","Bookings","Avg Report TAT","Abnormal %"],labs.map(([k,v])=>[k,new Set(v.map(x=>x.test)).size,v.length,avg(v.map(x=>x.tat)).toFixed(1)+" h",pc(v.filter(x=>x.ab).length,v.length)]))+
+T("Test",["Test","Bookings","Avg TAT","Abnormal %"],tests.map(([k,v])=>[k,v.length,avg(v.map(x=>x.tat)).toFixed(1)+" h",pc(v.filter(x=>x.ab).length,v.length)]))+`</div>`}
+if(i==6){const slow=[...stores].sort((a,b)=>b.tat-a.tat)[0],topL=[...labs].sort((a,b)=>avg(b[1].map(x=>x.tat))-avg(a[1].map(x=>x.tat)))[0];
+h=`<h2>Omnichannel Health Intelligence Control Tower</h2><div class="k">${K("Revenue",inr(S.rev))}${K("Orders",num(o.length))}${K("Avg TAT",S.tat.toFixed(1)+" h")}${K("Rx %",pc(S.rx,o.length))}${K("ABHA %",pc(S.ab,S.pt.size))}${K("Avg LTV",inr(S.ltv))}${K("Diagnosis Change %",pc(S.dx,c.length))}${K("Report TAT",S.dtat.toFixed(1)+" h")}</div><div class="g">`+
+CH("Pincode Demand — Top 10 (orders)","bar",pcT.map(x=>P[x[0]][0]),pcT.map(x=>x[1]))+CH("Dark Store Performance — Avg TAT (h)","bar",stores.map(x=>x.k),stores.map(x=>+x.tat.toFixed(1)),{h:1})+
+CH("Clinical DSS — Consultations by Specialty","bar",spec.map(x=>x[0]),spec.map(x=>x[1].length),{h:1})+CH("Diagnostics — Lab TAT (h)","bar",labs.map(x=>x[0]),labs.map(x=>+avg(x[1].map(y=>y.tat)).toFixed(1)))+
+T("Final action matrix",["Area","KPI","Observation (live)","Management Action"],[
+["Customer","ABHA Link Rate","Identity linkage at "+pc(S.ab,S.pt.size),"Improve ABHA onboarding"],
+["Fulfilment","Delivery TAT",slow?`Slowest: ${slow.k} (${slow.tat.toFixed(1)} h)`:"–","Optimize dark-store allocation"],
+["Geography","Pincode Orders",pcT[0]?`Top pincode ${P[pcT[0][0]][0]} = ${pc(pcT[0][1],o.length)} of orders`:"–","Evaluate fulfilment capacity"],
+["Clinical","Diagnosis Change",pc(S.dx,c.length)+" vs 18% case baseline","Improve clinical information access"],
+["Diagnostics","Report TAT",topL?`Slowest: ${topL[0]} (${avg(topL[1].map(x=>x.tat)).toFixed(1)} h)`:"–","Review LIMS workflow"]])+`</div>`}
+return h}
+function draw(){
+charts.forEach(c=>c.destroy());charts=[];cq=[];
+[...$("nav").children].forEach((b,i)=>b.classList.toggle("on",i==pg));
+$("main").innerHTML=page(pg,stats());
+const dark=matchMedia("(prefers-color-scheme: dark)").matches,tc=dark?"#93a0ad":"#64707d";
+Chart.defaults.color=tc;Chart.defaults.maintainAspectRatio=false;
+cq.forEach((q,i)=>{const cv=$("cv"+i),dn=q.type=="doughnut",bb=q.type=="bubble";
+const cfg={type:bb?"bubble":q.type,data:bb?{datasets:[{label:"Pincodes",data:q.dat,backgroundColor:"#e8503a99",borderColor:"#e8503a"}]}:{labels:q.lab,datasets:[{data:q.dat,backgroundColor:dn?PAL:PAL[i%2?1:0],borderRadius:dn?0:3}]},
+options:{indexAxis:q.o.h?"y":"x",plugins:{legend:{display:dn,position:"bottom"}},scales:dn?{}:bb?{x:{title:{display:true,text:"Longitude"}},y:{title:{display:true,text:"Latitude"}}}:{x:{grid:{display:false}},y:{grid:{color:"#8883"}}}}};
+if(bb)cfg.options.plugins.tooltip={callbacks:{label:x=>{const r=x.raw,l=q.lab[x.dataIndex];return[l,"Orders: "+r.n,"Revenue: "+inr(r.rev),"Patients: "+r.pt,"AOV: "+inr(r.rev/r.n)]}}};
+charts.push(new Chart(cv,cfg))})}
+draw();
+</script></body></html>
